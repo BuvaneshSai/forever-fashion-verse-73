@@ -26,7 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, MoreHorizontal, Search, Edit, Trash } from "lucide-react";
+import { Plus, MoreHorizontal, Search, Edit, Trash, Archive, CheckSquare } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 // Mock product data
 const products = [
@@ -104,9 +105,9 @@ const products = [
     discountPercentage: 0,
     category: "Men's",
     subcategory: "Topwear",
-    stock: 60,
+    stock: 0,
     rating: 4.2,
-    status: "Active",
+    status: "Out of Stock",
   },
 ];
 
@@ -114,18 +115,42 @@ const AdminProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [productsList, setProductsList] = useState(products);
   
   // Filter products based on search and filters
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = productsList.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !categoryFilter || product.category === categoryFilter;
-    const matchesStatus = !statusFilter || product.status === statusFilter;
+    const matchesCategory = !categoryFilter || categoryFilter === "all-categories" || product.category === categoryFilter;
+    const matchesStatus = !statusFilter || statusFilter === "all-status" || product.status === statusFilter;
     
     return matchesSearch && matchesCategory && matchesStatus;
   });
   
   // Get unique categories for the filter dropdown
   const categories = Array.from(new Set(products.map((product) => product.category)));
+  
+  const toggleStockStatus = (productId: string) => {
+    setProductsList(prevProducts => 
+      prevProducts.map(product => {
+        if (product.id === productId) {
+          const newStatus = product.status === "Active" ? "Out of Stock" : "Active";
+          const newStock = newStatus === "Active" ? 10 : 0;
+          
+          toast({
+            title: `Product ${newStatus === "Active" ? "in stock" : "out of stock"}`,
+            description: `"${product.name}" is now ${newStatus.toLowerCase()}.`,
+          });
+          
+          return {
+            ...product,
+            status: newStatus,
+            stock: newStock
+          };
+        }
+        return product;
+      })
+    );
+  };
   
   return (
     <AdminLayout pageTitle="Products">
@@ -163,8 +188,7 @@ const AdminProducts = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all-status">All Status</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
+                  <SelectItem value="Active">In Stock</SelectItem>
                   <SelectItem value="Out of Stock">Out of Stock</SelectItem>
                 </SelectContent>
               </Select>
@@ -185,7 +209,7 @@ const AdminProducts = () => {
           <CardHeader>
             <CardTitle>Product Catalog</CardTitle>
             <CardDescription>
-              Showing {filteredProducts.length} of {products.length} products
+              Showing {filteredProducts.length} of {productsList.length} products
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -257,7 +281,7 @@ const AdminProducts = () => {
                               : "bg-red-100 text-red-800"
                           }`}
                         >
-                          {product.status}
+                          {product.status === "Active" ? "In Stock" : product.status}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm">
@@ -274,6 +298,19 @@ const AdminProducts = () => {
                             <DropdownMenuItem>
                               <Edit size={14} className="mr-2" />
                               Edit Product
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => toggleStockStatus(product.id)}>
+                              {product.status === "Active" ? (
+                                <>
+                                  <Archive size={14} className="mr-2" />
+                                  Mark as Out of Stock
+                                </>
+                              ) : (
+                                <>
+                                  <CheckSquare size={14} className="mr-2" />
+                                  Mark as In Stock
+                                </>
+                              )}
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                               <Trash size={14} className="mr-2" />

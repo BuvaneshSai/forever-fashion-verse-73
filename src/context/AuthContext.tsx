@@ -1,6 +1,6 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 // Define user types
 export type UserRole = "user" | "admin";
@@ -33,6 +33,10 @@ export const useAuth = () => {
   return context;
 };
 
+// Admin credentials
+const ADMIN_EMAIL = "buvaneshvc22259@gmail.com";
+const ADMIN_PASSWORD = "Buvaneshsai163422259";
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,13 +55,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  // Mock functions for authentication (replace with real implementation when connecting to backend)
   const login = async (email: string, password: string, role: UserRole): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // This is a placeholder for actual authentication logic
+      // Special handling for admin login
+      if (role === "admin") {
+        // Check if the credentials match the admin credentials
+        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+          const adminUser = {
+            id: "admin-1",
+            email: ADMIN_EMAIL,
+            name: "Admin",
+            role: "admin" as UserRole,
+          };
+          
+          setUser(adminUser);
+          localStorage.setItem("foreverUser", JSON.stringify(adminUser));
+          
+          toast({
+            title: "Admin login successful",
+            description: "Welcome to the admin dashboard!",
+          });
+          
+          return true;
+        } else {
+          toast({
+            title: "Admin login failed",
+            description: "Invalid admin credentials.",
+            variant: "destructive",
+          });
+          return false;
+        }
+      }
+      
+      // For regular users, implement Supabase authentication
+      // For demo purposes, we'll keep the mock implementation
       if (email && password) {
-        // Mock user for now
+        // Mock user for demo
         const mockUser = {
           id: `user-${Date.now()}`,
           email,
