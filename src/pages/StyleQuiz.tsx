@@ -115,7 +115,7 @@ const styleDefinitions = {
       { id: "prod6", name: "Casual T-Shirt", image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820", price: 800, discountPercentage: 0 },
     ],
   },
-  avant-garde: {
+  "avant-garde": {
     title: "Avant-Garde Explorer",
     description: "You're a fashion pioneer who loves to experiment with cutting-edge trends, unique silhouettes, and unexpected combinations.",
     recommendations: [
