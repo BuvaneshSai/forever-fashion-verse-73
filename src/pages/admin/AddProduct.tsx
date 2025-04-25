@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/layout/AdminLayout";
@@ -47,7 +46,6 @@ const AddProduct = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   
-  // Form state
   const [productData, setProductData] = useState({
     title: "",
     description: "",
@@ -60,7 +58,6 @@ const AddProduct = () => {
     imageURLs: [] as string[],
   });
   
-  // Derived state
   const calculatedPrice = productData.price && productData.discountPercentage
     ? Number(productData.price) * (1 - Number(productData.discountPercentage) / 100)
     : null;
@@ -71,7 +68,6 @@ const AddProduct = () => {
     ? subcategories[productData.category as keyof typeof subcategories] || []
     : [];
   
-  // Handlers
   const handleCategoryChange = (value: string) => {
     setProductData((prev) => ({
       ...prev,
@@ -106,7 +102,6 @@ const AddProduct = () => {
         return;
       }
       
-      // Create URLs for preview
       const newURLs = newFiles.map((file) => URL.createObjectURL(file));
       
       setProductData((prev) => ({
@@ -122,7 +117,6 @@ const AddProduct = () => {
       const newImageFiles = [...prev.imageFiles];
       const newImageURLs = [...prev.imageURLs];
       
-      // Revoke the object URL to avoid memory leaks
       URL.revokeObjectURL(newImageURLs[index]);
       
       newImageFiles.splice(index, 1);
@@ -139,7 +133,6 @@ const AddProduct = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
     if (!productData.title.trim()) {
       toast({ title: "Error", description: "Product title is required", variant: "destructive" });
       return;
@@ -186,10 +179,6 @@ const AddProduct = () => {
     setIsLoading(true);
     
     try {
-      // This is a placeholder for the actual API call to save the product
-      // In a real implementation, you would upload the images and save the product data
-      
-      // Simulate API call with a delay
       await new Promise((resolve) => setTimeout(resolve, 1500));
       
       toast({
