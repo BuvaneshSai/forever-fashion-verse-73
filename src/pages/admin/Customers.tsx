@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import AdminLayout from "@/components/layout/AdminLayout";
 import { Input } from "@/components/ui/input";
@@ -33,10 +32,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Mail, Star, MessageSquare } from "lucide-react";
+import { Search as SearchIcon, Mail, Star, MessageSquare } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
-// Mock customer data
 const customers = [
   {
     id: "cust1",
@@ -85,7 +83,6 @@ const customers = [
   },
 ];
 
-// Mock reviews data
 const reviews = [
   {
     id: "rev1",
@@ -160,7 +157,6 @@ const AdminCustomers = () => {
   const handleSubmitReply = () => {
     if (!selectedReview) return;
     
-    // Update the review with the reply
     const updatedReviews = reviewsList.map(review => 
       review.id === selectedReview.id
         ? { ...review, reply: replyText }
@@ -170,7 +166,6 @@ const AdminCustomers = () => {
     setReviewsList(updatedReviews);
     setReplyDialogOpen(false);
     
-    // Simulate sending email notification
     toast({
       title: "Reply submitted",
       description: `A notification email has been sent to ${selectedReview.customerName}.`,
@@ -181,7 +176,7 @@ const AdminCustomers = () => {
     <AdminLayout pageTitle="Customers">
       <div className="mb-6">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <Input
             placeholder="Search customers, reviews or products..."
             className="pl-10"

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search as SearchIcon } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,7 +34,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ pageTitle }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Search
+            <SearchIcon
               size={18}
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
             />

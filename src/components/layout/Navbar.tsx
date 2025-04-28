@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ShoppingCart, User, Menu, X, Search } from "lucide-react";
+import { ShoppingCart, User, Menu, X, Search as SearchIcon } from "lucide-react";
 
 const categories = [
   { name: "Men", path: "/shop?category=mens" },
@@ -49,7 +49,7 @@ const Navbar = () => {
           {/* Search & User actions */}
           <div className="hidden md:flex items-center space-x-4">
             <Link to="/search" className="text-gray-600 hover:text-forever-navy">
-              <Search size={20} />
+              <SearchIcon size={20} />
             </Link>
             
             <Link to="/chat-stylist" className="text-gray-600 hover:text-forever-navy">
@@ -130,7 +130,7 @@ const Navbar = () => {
                 className="text-gray-600 hover:text-forever-navy py-2 flex items-center"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <Search size={18} className="mr-2" /> Search
+                <SearchIcon size={18} className="mr-2" /> Search
               </Link>
               <Link 
                 to="/chat-stylist" 
