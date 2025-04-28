@@ -26,7 +26,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, MoreHorizontal, Search, Edit, Trash, Archive, CheckSquare } from "lucide-react";
+import { 
+  Plus, 
+  MoreHorizontal, 
+  Search as SearchIcon, 
+  Edit, 
+  Trash, 
+  Archive, 
+  CheckSquare 
+} from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 // Mock product data
@@ -158,7 +166,7 @@ const AdminProducts = () => {
         <CardContent className="py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="relative w-full md:w-auto flex-grow">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
               <Input
                 placeholder="Search products..."
                 className="pl-10"
