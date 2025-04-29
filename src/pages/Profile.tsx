@@ -11,6 +11,8 @@ import { toast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BankCardForm } from "@/components/profile/BankCardForm";
 import { BankCardList } from "@/components/profile/BankCardList";
+import { OrderHistory } from "@/components/profile/OrderHistory";
+import { CountrySelector } from "@/components/ui/country-selector";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -19,6 +21,7 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     username: "",
     mobile_number: "",
+    country_code: "+1",
   });
 
   useEffect(() => {
@@ -38,9 +41,24 @@ const Profile = () => {
       if (error) throw error;
       
       setProfile(data);
+      
+      // Parse the mobile number to separate country code if it exists
+      let countryCode = "+1";
+      let mobileNumber = data.mobile_number || "";
+      
+      if (mobileNumber && mobileNumber.startsWith("+")) {
+        // Try to extract the country code from the mobile number
+        const match = mobileNumber.match(/^(\+\d+)\s*(.*)$/);
+        if (match) {
+          countryCode = match[1];
+          mobileNumber = match[2];
+        }
+      }
+      
       setFormData({
         username: data.username || "",
-        mobile_number: data.mobile_number || "",
+        mobile_number: mobileNumber,
+        country_code: countryCode,
       });
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -55,9 +73,17 @@ const Profile = () => {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Combine country code and mobile number
+      const fullMobileNumber = formData.mobile_number 
+        ? `${formData.country_code} ${formData.mobile_number}`
+        : "";
+      
       const { error } = await supabase
         .from("profiles")
-        .update(formData)
+        .update({
+          username: formData.username,
+          mobile_number: fullMobileNumber,
+        })
         .eq("id", user?.id);
 
       if (error) throw error;
@@ -110,12 +136,30 @@ const Profile = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="mobile">Mobile Number</Label>
-                    <Input
-                      id="mobile"
-                      value={formData.mobile_number}
-                      onChange={(e) => setFormData(prev => ({ ...prev, mobile_number: e.target.value }))}
-                      disabled={!isEditing}
-                    />
+                    <div className="flex gap-2">
+                      {isEditing ? (
+                        <>
+                          <CountrySelector 
+                            value={formData.country_code}
+                            onChange={(value) => setFormData(prev => ({ ...prev, country_code: value }))}
+                          />
+                          <Input
+                            id="mobile"
+                            value={formData.mobile_number}
+                            onChange={(e) => setFormData(prev => ({ ...prev, mobile_number: e.target.value }))}
+                            className="flex-1"
+                            placeholder="Phone number without country code"
+                          />
+                        </>
+                      ) : (
+                        <Input
+                          id="mobile"
+                          value={profile?.mobile_number || ""}
+                          disabled
+                          className="w-full"
+                        />
+                      )}
+                    </div>
                   </div>
 
                   {isEditing ? (
@@ -157,9 +201,7 @@ const Profile = () => {
                 <CardTitle>Order History</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-4 text-gray-500">
-                  Order history will be implemented soon.
-                </div>
+                <OrderHistory />
               </CardContent>
             </Card>
           </TabsContent>
