@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import UserLayout from "@/components/layout/UserLayout";
@@ -11,7 +10,7 @@ interface Product {
   name: string;
   image: string;
   price: number;
-  discount_percentage: number;
+  discount_percentage: number; // Updated field name
   category: string;
   subcategory: string;
   description: string;

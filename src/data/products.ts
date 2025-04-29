@@ -1,10 +1,9 @@
-
 export interface Product {
   id: string;
   name: string;
   image: string;
   price: number;
-  discountPercentage: number;
+  discount_percentage: number;
   category: string;
   subcategory: string;
   description?: string;
@@ -12,6 +11,9 @@ export interface Product {
   stock?: number;
   rating?: number;
   status?: string;
+  model3d?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const products: Product[] = [
@@ -20,7 +22,7 @@ export const products: Product[] = [
     name: "Classic White Shirt",
     image: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10",
     price: 1200,
-    discountPercentage: 20,
+    discount_percentage: 20,
     category: "Men's",
     subcategory: "Topwear",
     description: "A timeless classic white shirt that goes with everything. Made from premium cotton for comfort and durability.",
@@ -34,7 +36,7 @@ export const products: Product[] = [
     name: "Blue Denim Jeans",
     image: "https://images.unsplash.com/photo-1565084888279-aca607ecce0c",
     price: 1800,
-    discountPercentage: 15,
+    discount_percentage: 15,
     category: "Men's",
     subcategory: "Bottomwear",
     description: "Premium blue denim jeans with a perfect fit. Versatile and comfortable for everyday wear.",
@@ -48,7 +50,7 @@ export const products: Product[] = [
     name: "Floral Summer Dress",
     image: "https://images.unsplash.com/photo-1496217590455-aa63a8550c23",
     price: 1500,
-    discountPercentage: 25,
+    discount_percentage: 25,
     category: "Women's",
     subcategory: "Summerwear",
     description: "Beautiful floral dress perfect for summer days. Lightweight fabric keeps you cool and comfortable.",
@@ -62,7 +64,7 @@ export const products: Product[] = [
     name: "Sports Running Shoes",
     image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5",
     price: 2200,
-    discountPercentage: 10,
+    discount_percentage: 10,
     category: "Men's Shoes",
     subcategory: "Sports Shoes",
     description: "High-performance running shoes with superior cushioning and support for your daily runs.",
@@ -76,7 +78,7 @@ export const products: Product[] = [
     name: "Winter Jacket",
     image: "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7",
     price: 3500,
-    discountPercentage: 0,
+    discount_percentage: 0,
     category: "Men's",
     subcategory: "Winterwear",
     description: "Warm and stylish winter jacket that protects from the cold while keeping you looking great.",
@@ -90,7 +92,7 @@ export const products: Product[] = [
     name: "Casual T-Shirt",
     image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820",
     price: 800,
-    discountPercentage: 0,
+    discount_percentage: 0,
     category: "Men's",
     subcategory: "Topwear",
     description: "Comfortable casual t-shirt for everyday wear. Made from soft cotton fabric.",

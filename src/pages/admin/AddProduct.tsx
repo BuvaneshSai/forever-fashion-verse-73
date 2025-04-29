@@ -237,14 +237,14 @@ const AddProduct = () => {
         }
       }
       
-      // Prepare product data for Supabase
+      // Prepare product data for Supabase - using snake_case for database fields
       const newProduct = {
         name: productData.title,
         description: productData.description,
         image: imageUrl,
         model3d: model3DURL || null,
         price: Number(productData.price),
-        discount_percentage: Number(productData.discountPercentage || 0),
+        discount_percentage: Number(productData.discountPercentage || 0), // Updated field name
         category: categories.find(c => c.value === productData.category)?.label || productData.category,
         subcategory: productData.subcategory,
         sizes: productData.sizes,

@@ -6,15 +6,15 @@ interface Product {
   name: string;
   image: string;
   price: number;
-  discountPercentage: number;
+  discount_percentage: number; // Updated field name
   category: string;
   subcategory: string;
   status?: string;
 }
 
 export const ProductCard = ({ product }: { product: Product }) => {
-  const discountedPrice = product.discountPercentage 
-    ? product.price * (1 - product.discountPercentage / 100) 
+  const discountedPrice = product.discount_percentage 
+    ? product.price * (1 - product.discount_percentage / 100) 
     : product.price;
   
   // Don't display products that are marked as deleted
@@ -38,13 +38,13 @@ export const ProductCard = ({ product }: { product: Product }) => {
             <span className="text-forever-navy font-semibold">
               ₹{discountedPrice.toFixed(0)}
             </span>
-            {product.discountPercentage > 0 && (
+            {product.discount_percentage > 0 && (
               <>
                 <span className="text-gray-500 line-through ml-2">
                   ₹{product.price.toFixed(0)}
                 </span>
                 <span className="ml-2 bg-forever-orange text-white text-xs px-2 py-1 rounded">
-                  {product.discountPercentage}% OFF
+                  {product.discount_percentage}% OFF
                 </span>
               </>
             )}

@@ -9,7 +9,7 @@ interface Product {
   name: string;
   image: string;
   price: number;
-  discountPercentage: number;
+  discount_percentage: number; // Updated field name
   category: string;
   subcategory: string;
 }

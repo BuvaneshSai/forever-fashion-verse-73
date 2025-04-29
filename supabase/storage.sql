@@ -12,3 +12,4 @@ CREATE POLICY "Public Access" ON storage.objects
 CREATE POLICY "Allow authenticated uploads" ON storage.objects
   FOR INSERT
   WITH CHECK (bucket_id = 'products' AND auth.role() = 'authenticated');
+
