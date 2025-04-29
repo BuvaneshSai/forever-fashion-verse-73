@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
+import { addProduct } from "@/data/products";
 
 const categories = [
   { value: "mens", label: "Men's" },
@@ -180,6 +181,23 @@ const AddProduct = () => {
     
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
+      
+      // Add the product to our products array
+      const newProduct = {
+        id: `prod${Date.now()}`, // Generate a unique ID based on timestamp
+        name: productData.title,
+        description: productData.description,
+        image: productData.imageURLs[0] || "https://placehold.co/600x400?text=Product+Image",
+        price: Number(productData.price),
+        discountPercentage: Number(productData.discountPercentage || 0),
+        category: categories.find(c => c.value === productData.category)?.label || productData.category,
+        subcategory: productData.subcategory,
+        sizes: productData.sizes,
+        stock: 100, // Default stock amount
+        status: "Active"
+      };
+      
+      addProduct(newProduct);
       
       toast({
         title: "Product added",
