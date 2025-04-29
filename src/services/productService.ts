@@ -1,153 +1,96 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { Product } from "@/data/products";
-import { toast } from "@/components/ui/use-toast";
+import { supabase } from '../integrations/supabase/client';
+import { Product } from '@/data/products';
 
-// Function to fetch all products from Supabase
+// Fetch all products
 export const fetchProducts = async (): Promise<Product[]> => {
-  try {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
-    
-    if (error) {
-      console.error("Error fetching products:", error);
-      throw error;
-    }
-    
-    return data || [];
-  } catch (error) {
-    console.error("Failed to fetch products:", error);
-    return [];
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching products:', error);
+    throw new Error(error.message);
   }
+
+  // Transform the data to match our Product interface
+  return data.map(item => ({
+    ...item,
+    discount_percentage: item.discount_percentage,
+    sizes: item.sizes || [],
+  })) as Product[];
 };
 
-// Function to add a new product to Supabase
-export const addProductToSupabase = async (product: Omit<Product, "id">): Promise<Product | null> => {
-  try {
-    const { data, error } = await supabase
-      .from("products")
-      .insert([product])
-      .select()
-      .single();
-    
-    if (error) {
-      console.error("Error adding product:", error);
-      toast({
-        title: "Error",
-        description: `Failed to add product: ${error.message}`,
-        variant: "destructive",
-      });
-      return null;
-    }
-    
-    toast({
-      title: "Product added",
-      description: "The product has been successfully added to the catalog",
-    });
-    
-    return data;
-  } catch (error) {
-    console.error("Failed to add product:", error);
-    toast({
-      title: "Error",
-      description: "An unexpected error occurred while adding the product",
-      variant: "destructive",
-    });
-    return null;
+// Add a new product
+export const addProductToSupabase = async (product: Omit<Product, 'id'>): Promise<Product | null> => {
+  const { data, error } = await supabase
+    .from('products')
+    .insert([product])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error adding product:', error);
+    throw new Error(error.message);
   }
+
+  return data as Product;
 };
 
-// Function to toggle product stock status
-export const toggleProductStatus = async (productId: string, currentStatus: string): Promise<boolean> => {
-  const newStatus = currentStatus === "Active" ? "Out of Stock" : "Active";
-  const newStock = newStatus === "Active" ? 10 : 0;
-  
-  try {
-    const { error } = await supabase
-      .from("products")
-      .update({ 
-        status: newStatus,
-        stock: newStock 
-      })
-      .eq("id", productId);
-    
-    if (error) {
-      console.error("Error updating product status:", error);
-      toast({
-        title: "Error",
-        description: `Failed to update product status: ${error.message}`,
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    return true;
-  } catch (error) {
-    console.error("Failed to update product status:", error);
-    return false;
-  }
-};
-
-// Function to delete a product
-export const deleteProduct = async (productId: string): Promise<boolean> => {
-  try {
-    const { error } = await supabase
-      .from("products")
-      .delete()
-      .eq("id", productId);
-    
-    if (error) {
-      console.error("Error deleting product:", error);
-      toast({
-        title: "Error",
-        description: `Failed to delete product: ${error.message}`,
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    toast({
-      title: "Product deleted",
-      description: "The product has been successfully removed from the catalog",
-    });
-    
-    return true;
-  } catch (error) {
-    console.error("Failed to delete product:", error);
-    toast({
-      title: "Error",
-      description: "An unexpected error occurred while deleting the product",
-      variant: "destructive",
-    });
-    return false;
-  }
-};
-
-// Function to upload a product image to Supabase Storage
+// Upload a product image
 export const uploadProductImage = async (file: File): Promise<string | null> => {
-  try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-    const filePath = `products/${fileName}`;
-    
-    const { error } = await supabase.storage
-      .from('products')
-      .upload(filePath, file);
-    
-    if (error) {
-      console.error("Error uploading image:", error);
-      return null;
-    }
-    
-    const { data } = supabase.storage
-      .from('products')
-      .getPublicUrl(filePath);
-    
-    return data.publicUrl;
-  } catch (error) {
-    console.error("Failed to upload image:", error);
-    return null;
+  const filePath = `products/${Date.now()}-${file.name}`;
+
+  const { data, error } = await supabase.storage
+    .from('products')
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
+
+  if (error) {
+    console.error('Error uploading image:', error);
+    throw new Error(error.message);
   }
+
+  // Get the public URL
+  const { data: urlData } = supabase.storage
+    .from('products')
+    .getPublicUrl(data.path);
+
+  return urlData.publicUrl;
+};
+
+// Toggle product status (active/out of stock)
+export const toggleProductStatus = async (productId: string, currentStatus: string): Promise<boolean> => {
+  const newStatus = currentStatus === 'Active' ? 'Out of Stock' : 'Active';
+  const newStock = newStatus === 'Active' ? 10 : 0;
+
+  const { error } = await supabase
+    .from('products')
+    .update({ status: newStatus, stock: newStock })
+    .eq('id', productId);
+
+  if (error) {
+    console.error('Error updating product status:', error);
+    return false;
+  }
+
+  return true;
+};
+
+// Delete a product (mark as deleted)
+export const deleteProduct = async (productId: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('products')
+    .update({ status: 'Deleted' })
+    .eq('id', productId);
+
+  if (error) {
+    console.error('Error deleting product:', error);
+    return false;
+  }
+
+  return true;
 };

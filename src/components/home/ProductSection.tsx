@@ -3,16 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
-
-interface Product {
-  id: string;
-  name: string;
-  image: string;
-  price: number;
-  discount_percentage: number; // Updated field name
-  category: string;
-  subcategory: string;
-}
+import { Product } from "@/data/products";
 
 interface ProductSectionProps {
   title: string;

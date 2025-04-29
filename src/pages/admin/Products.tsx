@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import AdminLayout from "@/components/layout/AdminLayout";
@@ -263,15 +262,15 @@ const AdminProducts = () => {
                         <td className="px-4 py-3 text-sm">
                           <div>
                             <p className="font-medium">
-                              ₹{(product.price * (1 - product.discountPercentage / 100)).toFixed(0)}
+                              ₹{(product.price * (1 - product.discount_percentage / 100)).toFixed(0)}
                             </p>
-                            {product.discountPercentage > 0 && (
+                            {product.discount_percentage > 0 && (
                               <div className="flex items-center text-xs">
                                 <span className="line-through text-gray-500 mr-1">
                                   ₹{product.price}
                                 </span>
                                 <span className="text-green-600">
-                                  -{product.discountPercentage}%
+                                  -{product.discount_percentage}%
                                 </span>
                               </div>
                             )}
