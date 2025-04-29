@@ -44,7 +44,7 @@ const Profile = () => {
       
       // Parse the mobile number to separate country code if it exists
       let countryCode = "+1";
-      let mobileNumber = data.mobile_number || "";
+      let mobileNumber = data?.mobile_number || "";
       
       if (mobileNumber && mobileNumber.startsWith("+")) {
         // Try to extract the country code from the mobile number
@@ -56,7 +56,7 @@ const Profile = () => {
       }
       
       setFormData({
-        username: data.username || "",
+        username: data?.username || "",
         mobile_number: mobileNumber,
         country_code: countryCode,
       });

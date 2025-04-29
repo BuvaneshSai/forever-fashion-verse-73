@@ -43,6 +43,9 @@ interface CountrySelectorProps {
 export function CountrySelector({ value, onChange }: CountrySelectorProps) {
   const [open, setOpen] = React.useState(false);
 
+  // Ensure value has a default to prevent undefined issues
+  const selectedValue = value || "+1";
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -52,8 +55,8 @@ export function CountrySelector({ value, onChange }: CountrySelectorProps) {
           aria-expanded={open}
           className="w-[120px] justify-between"
         >
-          {value
-            ? countryCodes.find((code) => code.value === value)?.value || value
+          {selectedValue
+            ? countryCodes.find((code) => code.value === selectedValue)?.value || selectedValue
             : "+1"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -63,7 +66,7 @@ export function CountrySelector({ value, onChange }: CountrySelectorProps) {
           <CommandInput placeholder="Search country code..." />
           <CommandEmpty>No country found.</CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-y-auto">
-            {countryCodes.map((code) => (
+            {countryCodes && countryCodes.map((code) => (
               <CommandItem
                 key={code.value}
                 value={code.value}
@@ -75,7 +78,7 @@ export function CountrySelector({ value, onChange }: CountrySelectorProps) {
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === code.value ? "opacity-100" : "opacity-0"
+                    selectedValue === code.value ? "opacity-100" : "opacity-0"
                   )}
                 />
                 {code.label}
