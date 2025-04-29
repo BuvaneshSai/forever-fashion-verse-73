@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import AdminLayout from "@/components/layout/AdminLayout";
@@ -36,94 +35,14 @@ import {
   CheckSquare 
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { Product, products } from "@/data/products";
 
 // Mock product data
-const products = [
-  {
-    id: "prod1",
-    name: "Classic White Shirt",
-    image: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10",
-    price: 1200,
-    discountedPrice: 960,
-    discountPercentage: 20,
-    category: "Men's",
-    subcategory: "Topwear",
-    stock: 45,
-    rating: 4.5,
-    status: "Active",
-  },
-  {
-    id: "prod2",
-    name: "Blue Denim Jeans",
-    image: "https://images.unsplash.com/photo-1565084888279-aca607ecce0c",
-    price: 1800,
-    discountedPrice: 1530,
-    discountPercentage: 15,
-    category: "Men's",
-    subcategory: "Bottomwear",
-    stock: 32,
-    rating: 4.3,
-    status: "Active",
-  },
-  {
-    id: "prod3",
-    name: "Floral Summer Dress",
-    image: "https://images.unsplash.com/photo-1496217590455-aa63a8550c23",
-    price: 1500,
-    discountedPrice: 1125,
-    discountPercentage: 25,
-    category: "Women's",
-    subcategory: "Summerwear",
-    stock: 28,
-    rating: 4.7,
-    status: "Active",
-  },
-  {
-    id: "prod4",
-    name: "Sports Running Shoes",
-    image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5",
-    price: 2200,
-    discountedPrice: 1980,
-    discountPercentage: 10,
-    category: "Men's Shoes",
-    subcategory: "Sports Shoes",
-    stock: 18,
-    rating: 4.6,
-    status: "Active",
-  },
-  {
-    id: "prod5",
-    name: "Winter Jacket",
-    image: "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7",
-    price: 3500,
-    discountedPrice: 3500,
-    discountPercentage: 0,
-    category: "Men's",
-    subcategory: "Winterwear",
-    stock: 15,
-    rating: 4.8,
-    status: "Active",
-  },
-  {
-    id: "prod6",
-    name: "Casual T-Shirt",
-    image: "https://images.unsplash.com/photo-1581655353564-df123a1eb820",
-    price: 800,
-    discountedPrice: 800,
-    discountPercentage: 0,
-    category: "Men's",
-    subcategory: "Topwear",
-    stock: 0,
-    rating: 4.2,
-    status: "Out of Stock",
-  },
-];
-
 const AdminProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [productsList, setProductsList] = useState(products);
+  const [productsList, setProductsList] = useState<Product[]>(products);
   
   // Filter products based on search and filters
   const filteredProducts = productsList.filter((product) => {
@@ -143,6 +62,16 @@ const AdminProducts = () => {
         if (product.id === productId) {
           const newStatus = product.status === "Active" ? "Out of Stock" : "Active";
           const newStock = newStatus === "Active" ? 10 : 0;
+          
+          // Update the central products array as well
+          const centralProductIndex = products.findIndex(p => p.id === productId);
+          if (centralProductIndex !== -1) {
+            products[centralProductIndex] = {
+              ...products[centralProductIndex],
+              status: newStatus,
+              stock: newStock
+            };
+          }
           
           toast({
             title: `Product ${newStatus === "Active" ? "in stock" : "out of stock"}`,
@@ -263,7 +192,9 @@ const AdminProducts = () => {
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <div>
-                          <p className="font-medium">₹{product.discountedPrice}</p>
+                          <p className="font-medium">
+                            ₹{(product.price * (1 - product.discountPercentage / 100)).toFixed(0)}
+                          </p>
                           {product.discountPercentage > 0 && (
                             <div className="flex items-center text-xs">
                               <span className="line-through text-gray-500 mr-1">

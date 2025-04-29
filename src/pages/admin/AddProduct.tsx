@@ -180,6 +180,7 @@ const AddProduct = () => {
     setIsLoading(true);
     
     try {
+      // Simulate API delay
       await new Promise((resolve) => setTimeout(resolve, 1500));
       
       // Add the product to our products array
@@ -194,9 +195,11 @@ const AddProduct = () => {
         subcategory: productData.subcategory,
         sizes: productData.sizes,
         stock: 100, // Default stock amount
-        status: "Active"
+        status: "Active",
+        rating: 0, // Default rating for new products
       };
       
+      // Add the product to the centralized products array
       addProduct(newProduct);
       
       toast({
