@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/layout/AdminLayout";
@@ -20,7 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
-import { addProduct } from "@/data/products";
+import { addProductToSupabase, uploadProductImage } from "@/services/productService";
+import { convertImageTo3D } from "@/services/aiService";
+import { Loader2 } from "lucide-react";
 
 const categories = [
   { value: "mens", label: "Men's" },
@@ -46,6 +49,7 @@ const shoeSizes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"
 const AddProduct = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [is3DProcessing, setIs3DProcessing] = useState(false);
   
   const [productData, setProductData] = useState({
     title: "",
@@ -57,6 +61,7 @@ const AddProduct = () => {
     sizes: [] as string[],
     imageFiles: [] as File[],
     imageURLs: [] as string[],
+    model3DURL: "",
   });
   
   const calculatedPrice = productData.price && productData.discountPercentage
@@ -130,6 +135,31 @@ const AddProduct = () => {
       };
     });
   };
+
+  const generate3DModel = async () => {
+    if (productData.imageURLs.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please upload at least one image to generate a 3D model",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIs3DProcessing(true);
+    try {
+      // Use the first image to generate a 3D model
+      const model3DURL = await convertImageTo3D(productData.imageURLs[0]);
+      if (model3DURL) {
+        setProductData(prev => ({
+          ...prev,
+          model3DURL
+        }));
+      }
+    } finally {
+      setIs3DProcessing(false);
+    }
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,17 +210,41 @@ const AddProduct = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Upload the first image to Supabase Storage
+      const imageUrl = await uploadProductImage(productData.imageFiles[0]);
       
-      // Add the product to our products array
+      if (!imageUrl) {
+        toast({
+          title: "Error",
+          description: "Failed to upload product image. Please try again.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      // If a 3D model hasn't been generated yet, try to generate one
+      let model3DURL = productData.model3DURL;
+      if (!model3DURL) {
+        try {
+          setIs3DProcessing(true);
+          model3DURL = await convertImageTo3D(imageUrl) || "";
+        } catch (error) {
+          console.error("Error generating 3D model:", error);
+          // Continue without 3D model if it fails
+        } finally {
+          setIs3DProcessing(false);
+        }
+      }
+      
+      // Prepare product data for Supabase
       const newProduct = {
-        id: `prod${Date.now()}`, // Generate a unique ID based on timestamp
         name: productData.title,
         description: productData.description,
-        image: productData.imageURLs[0] || "https://placehold.co/600x400?text=Product+Image",
+        image: imageUrl,
+        model3d: model3DURL || null,
         price: Number(productData.price),
-        discountPercentage: Number(productData.discountPercentage || 0),
+        discount_percentage: Number(productData.discountPercentage || 0),
         category: categories.find(c => c.value === productData.category)?.label || productData.category,
         subcategory: productData.subcategory,
         sizes: productData.sizes,
@@ -199,15 +253,12 @@ const AddProduct = () => {
         rating: 0, // Default rating for new products
       };
       
-      // Add the product to the centralized products array
-      addProduct(newProduct);
+      // Add product to Supabase
+      const addedProduct = await addProductToSupabase(newProduct);
       
-      toast({
-        title: "Product added",
-        description: "The product has been successfully added to the catalog",
-      });
-      
-      navigate("/admin/products");
+      if (addedProduct) {
+        navigate("/admin/products");
+      }
     } catch (error) {
       console.error("Error adding product:", error);
       toast({
@@ -362,7 +413,7 @@ const AddProduct = () => {
           <div>
             <Card className="h-full flex flex-col">
               <CardHeader>
-                <CardTitle>Product Images</CardTitle>
+                <CardTitle>Product Images & 3D Model</CardTitle>
               </CardHeader>
               <CardContent className="flex-grow">
                 <div className="grid grid-cols-2 gap-4 mb-4">
@@ -399,9 +450,39 @@ const AddProduct = () => {
                   )}
                 </div>
                 
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 mb-4">
                   Upload up to 6 product images. The first image will be used as the main product image.
                 </p>
+
+                <div className="mt-6 p-4 border border-dashed rounded-md bg-gray-50">
+                  <h4 className="font-medium mb-2">AI-Generated 3D Model</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Generate a 3D model from your product image using AI. This will help customers visualize the product better.
+                  </p>
+                  
+                  <Button 
+                    type="button" 
+                    onClick={generate3DModel}
+                    disabled={productData.imageURLs.length === 0 || is3DProcessing}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    {is3DProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating 3D Model...
+                      </>
+                    ) : (
+                      'Generate 3D Model'
+                    )}
+                  </Button>
+                  
+                  {productData.model3DURL && (
+                    <div className="mt-3 p-2 bg-green-50 text-green-700 rounded text-sm">
+                      3D model successfully generated!
+                    </div>
+                  )}
+                </div>
               </CardContent>
               
               <CardFooter className="flex justify-end border-t pt-6 mt-auto">
@@ -413,8 +494,19 @@ const AddProduct = () => {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Adding Product..." : "Add Product"}
+                <Button 
+                  type="submit" 
+                  disabled={isLoading || is3DProcessing}
+                  className="min-w-[120px]"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    'Add Product'
+                  )}
                 </Button>
               </CardFooter>
             </Card>

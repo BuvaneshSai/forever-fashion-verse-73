@@ -9,12 +9,18 @@ interface Product {
   discountPercentage: number;
   category: string;
   subcategory: string;
+  status?: string;
 }
 
 export const ProductCard = ({ product }: { product: Product }) => {
   const discountedPrice = product.discountPercentage 
     ? product.price * (1 - product.discountPercentage / 100) 
     : product.price;
+  
+  // Don't display products that are marked as deleted
+  if (product.status === "Deleted") {
+    return null;
+  }
   
   return (
     <Link to={`/product/${product.id}`} className="group">
@@ -43,6 +49,12 @@ export const ProductCard = ({ product }: { product: Product }) => {
               </>
             )}
           </div>
+          
+          {product.status === "Out of Stock" && (
+            <span className="block mt-2 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+              Out of Stock
+            </span>
+          )}
         </div>
       </div>
     </Link>

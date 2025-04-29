@@ -1,8 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UserLayout from "@/components/layout/UserLayout";
 import { ProductCard } from "@/components/product/ProductCard";
-import { products } from "@/data/products";
+import { fetchProducts } from "@/services/productService";
 import { Input } from "@/components/ui/input";
 import { 
   Select,
@@ -11,11 +11,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 
 const Shop = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error("Error loading products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
 
   // Get unique categories for filter dropdown
   const categories = Array.from(new Set(products.map(product => product.category)));
@@ -24,7 +42,9 @@ const Shop = () => {
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !categoryFilter || categoryFilter === "all" || product.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+    // Only show active products (not deleted or out of stock)
+    const isActive = product.status === "Active";
+    return matchesSearch && matchesCategory && isActive;
   });
 
   return (
@@ -65,7 +85,11 @@ const Shop = () => {
           </Select>
         </div>
         
-        {filteredProducts.length > 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-forever-navy" />
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />

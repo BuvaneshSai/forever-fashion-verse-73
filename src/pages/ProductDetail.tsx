@@ -3,61 +3,120 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import UserLayout from "@/components/layout/UserLayout";
 import { ProductViewer3D } from "@/components/product/ProductViewer3D";
-import { Product, products } from "@/data/products";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
 
-// Remove the local interface that conflicts with the imported Product type
+interface Product {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  discount_percentage: number;
+  category: string;
+  subcategory: string;
+  description: string;
+  sizes: string[];
+  stock: number;
+  rating: number;
+  status: string;
+  model3d?: string | null;
+}
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch product data
-    const fetchedProduct = products.find(p => p.id === id);
+    const fetchProduct = async () => {
+      if (!id) return;
+
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching product:", error);
+          return;
+        }
+
+        if (data) {
+          setProduct(data);
+        }
+      } catch (error) {
+        console.error(`Failed to fetch product with ID ${id}:`, error);
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    if (fetchedProduct) {
-      setProduct(fetchedProduct);
-    } else {
-      console.error(`Product with ID ${id} not found`);
-    }
+    fetchProduct();
   }, [id]);
 
-  if (!product) {
+  if (loading) {
     return (
       <UserLayout>
         <div className="container mx-auto px-4 py-10">
-          <div className="text-center py-12">
-            <p className="text-gray-500">Loading product...</p>
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="h-10 w-10 animate-spin text-forever-navy" />
           </div>
         </div>
       </UserLayout>
     );
   }
 
+  if (!product) {
+    return (
+      <UserLayout>
+        <div className="container mx-auto px-4 py-10">
+          <div className="text-center py-12">
+            <p className="text-gray-500">Product not found or has been removed.</p>
+          </div>
+        </div>
+      </UserLayout>
+    );
+  }
+
+  const discountedPrice = product.discount_percentage
+    ? product.price * (1 - product.discount_percentage / 100)
+    : product.price;
+
   return (
     <UserLayout>
       <div className="container mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <ProductViewer3D productId={product.id} productName={product.name} />
+            {product.model3d ? (
+              <ProductViewer3D productId={product.id} productName={product.name} model3dUrl={product.model3d} />
+            ) : (
+              <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="h-full w-full object-cover object-center"
+                />
+              </div>
+            )}
           </div>
 
           <div>
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
             <div className="flex items-center mb-2">
               <p className="text-xl text-forever-navy font-semibold">
-                ₹{product.discountPercentage > 0 
-                  ? (product.price * (1 - product.discountPercentage / 100)).toFixed(0) 
-                  : product.price.toFixed(0)}
+                ₹{discountedPrice.toFixed(0)}
               </p>
-              {product.discountPercentage > 0 && (
+              {product.discount_percentage > 0 && (
                 <>
                   <span className="text-gray-500 line-through ml-2">
                     ₹{product.price.toFixed(0)}
                   </span>
                   <span className="ml-2 bg-forever-orange text-white text-xs px-2 py-1 rounded">
-                    {product.discountPercentage}% OFF
+                    {product.discount_percentage}% OFF
                   </span>
                 </>
               )}
@@ -85,7 +144,12 @@ const ProductDetail = () => {
               </div>
 
               <button 
-                className="w-full bg-forever-navy text-white py-3 rounded-md hover:bg-opacity-90"
+                className={`w-full py-3 rounded-md ${
+                  product.stock > 0 
+                    ? "bg-forever-navy text-white hover:bg-opacity-90" 
+                    : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                }`}
+                disabled={product.stock === 0}
                 onClick={() => {
                   if (selectedSize) {
                     alert(`Added ${product.name} in size ${selectedSize} to cart!`);
@@ -94,8 +158,16 @@ const ProductDetail = () => {
                   }
                 }}
               >
-                Add to Cart
+                {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
               </button>
+              
+              {product.model3d && (
+                <div className="mt-4 p-4 bg-forever-navy bg-opacity-10 rounded-lg">
+                  <p className="text-sm text-forever-navy">
+                    <span className="font-semibold">✨ AI-Enhanced:</span> This product features a 3D model generated by our AI technology, allowing you to view it from all angles.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
