@@ -3,19 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import UserLayout from "@/components/layout/UserLayout";
 import { ProductViewer3D } from "@/components/product/ProductViewer3D";
-import { products } from "@/data/products";
+import { Product, products } from "@/data/products";
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  discountPercentage: number;
-  description: string;
-  sizes: string[];
-  image: string;
-  category: string;
-  subcategory: string;
-}
+// Remove the local interface that conflicts with the imported Product type
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();

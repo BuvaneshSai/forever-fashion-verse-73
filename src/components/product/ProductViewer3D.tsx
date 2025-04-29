@@ -1,7 +1,8 @@
 
 import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+// Import OrbitControls with the correct path that includes type declarations
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Button } from "@/components/ui/button";
 import { Package } from "lucide-react";
 
