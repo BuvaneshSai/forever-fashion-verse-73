@@ -24,9 +24,25 @@ export const fetchProducts = async (): Promise<Product[]> => {
 
 // Add a new product
 export const addProductToSupabase = async (product: Omit<Product, 'id'>): Promise<Product | null> => {
+  // Create a properly typed object for Supabase insertion
+  const supabaseProduct = {
+    name: product.name,
+    description: product.description,
+    image: product.image,
+    price: product.price,
+    discount_percentage: product.discount_percentage,
+    category: product.category,
+    subcategory: product.subcategory,
+    sizes: product.sizes || [],
+    stock: product.stock || 100,
+    status: product.status || 'Active',
+    rating: product.rating || 0,
+    model3d: product.model3d || null
+  };
+
   const { data, error } = await supabase
     .from('products')
-    .insert([product])
+    .insert([supabaseProduct])
     .select()
     .single();
 
