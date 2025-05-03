@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/layout/AdminLayout";
@@ -374,8 +373,8 @@ const AddProduct = () => {
                       max="100"
                       step="1"
                       placeholder="Enter discount"
-                      value={productData.discountPercentage}
-                      onChange={(e) => setProductData({ ...productData, discountPercentage: e.target.value })}
+                      value={productData.discount_percentage}
+                      onChange={(e) => setProductData({ ...productData, discount_percentage: e.target.value })}
                     />
                   </div>
                 </div>
@@ -386,7 +385,7 @@ const AddProduct = () => {
                       Final Price: ₹{calculatedPrice.toFixed(2)}
                     </p>
                     <p className="text-sm text-green-600">
-                      {productData.discountPercentage}% discount applied
+                      {productData.discount_percentage}% discount applied
                     </p>
                   </div>
                 )}
