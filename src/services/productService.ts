@@ -24,6 +24,8 @@ export const fetchProducts = async (): Promise<Product[]> => {
 
 // Add a new product
 export const addProductToSupabase = async (product: Omit<Product, 'id'>): Promise<Product | null> => {
+  console.log('Submitting product to Supabase:', product);
+  
   // Create a properly typed object for Supabase insertion
   const supabaseProduct = {
     name: product.name,
@@ -56,6 +58,8 @@ export const addProductToSupabase = async (product: Omit<Product, 'id'>): Promis
 
 // Upload a product image
 export const uploadProductImage = async (file: File): Promise<string | null> => {
+  console.log('Uploading file to Supabase storage:', file.name);
+  
   const filePath = `products/${Date.now()}-${file.name}`;
 
   const { data, error } = await supabase.storage
@@ -67,7 +71,8 @@ export const uploadProductImage = async (file: File): Promise<string | null> => 
 
   if (error) {
     console.error('Error uploading image:', error);
-    throw new Error(error.message);
+    console.error('Error details:', JSON.stringify(error));
+    throw new Error(`Image upload failed: ${error.message}`);
   }
 
   // Get the public URL
@@ -75,6 +80,7 @@ export const uploadProductImage = async (file: File): Promise<string | null> => 
     .from('products')
     .getPublicUrl(data.path);
 
+  console.log('Upload successful, public URL:', urlData.publicUrl);
   return urlData.publicUrl;
 };
 

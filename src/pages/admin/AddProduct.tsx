@@ -57,15 +57,15 @@ const AddProduct = () => {
     category: "",
     subcategory: "",
     price: "",
-    discountPercentage: "",
+    discount_percentage: "", // Changed from discountPercentage to discount_percentage
     sizes: [] as string[],
     imageFiles: [] as File[],
     imageURLs: [] as string[],
     model3DURL: "",
   });
   
-  const calculatedPrice = productData.price && productData.discountPercentage
-    ? Number(productData.price) * (1 - Number(productData.discountPercentage) / 100)
+  const calculatedPrice = productData.price && productData.discount_percentage
+    ? Number(productData.price) * (1 - Number(productData.discount_percentage) / 100)
     : null;
   
   const isShoeCategory = productData.category.includes("shoes");
@@ -189,10 +189,10 @@ const AddProduct = () => {
       return;
     }
     
-    if (productData.discountPercentage && 
-        (isNaN(Number(productData.discountPercentage)) || 
-         Number(productData.discountPercentage) < 0 || 
-         Number(productData.discountPercentage) > 100)) {
+    if (productData.discount_percentage && 
+        (isNaN(Number(productData.discount_percentage)) || 
+         Number(productData.discount_percentage) < 0 || 
+         Number(productData.discount_percentage) > 100)) {
       toast({ title: "Error", description: "Discount percentage must be between 0 and 100", variant: "destructive" });
       return;
     }
@@ -211,7 +211,9 @@ const AddProduct = () => {
     
     try {
       // Upload the first image to Supabase Storage
+      console.log("Starting image upload to Supabase storage...");
       const imageUrl = await uploadProductImage(productData.imageFiles[0]);
+      console.log("Image upload result:", imageUrl);
       
       if (!imageUrl) {
         toast({
@@ -244,7 +246,7 @@ const AddProduct = () => {
         image: imageUrl,
         model3d: model3DURL || null,
         price: Number(productData.price),
-        discount_percentage: Number(productData.discountPercentage || 0), // Updated field name
+        discount_percentage: Number(productData.discount_percentage || 0), // Using the correct field name
         category: categories.find(c => c.value === productData.category)?.label || productData.category,
         subcategory: productData.subcategory,
         sizes: productData.sizes,
@@ -253,10 +255,16 @@ const AddProduct = () => {
         rating: 0, // Default rating for new products
       };
       
+      console.log("Adding product to Supabase:", newProduct);
       // Add product to Supabase
       const addedProduct = await addProductToSupabase(newProduct);
+      console.log("Add product result:", addedProduct);
       
       if (addedProduct) {
+        toast({
+          title: "Success",
+          description: "Product added successfully",
+        });
         navigate("/admin/products");
       }
     } catch (error) {
