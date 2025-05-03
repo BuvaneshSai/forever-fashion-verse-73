@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, View3d } from "lucide-react";
+import { ArrowRight, View } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Product } from "@/data/products";
 
@@ -26,7 +26,7 @@ const ProductSection = ({ title, products, viewAllLink }: ProductSectionProps) =
             <h2 className="text-2xl md:text-3xl font-bold">{title}</h2>
             {productsWithModels > 0 && (
               <p className="text-sm text-gray-600 mt-1">
-                <View3d className="inline-block mr-1" size={16} />
+                <View className="inline-block mr-1" size={16} />
                 {productsWithModels} product{productsWithModels !== 1 ? 's' : ''} with 3D preview
               </p>
             )}

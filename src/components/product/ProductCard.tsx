@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Cube3d } from "lucide-react";
+import { View } from "lucide-react";
 
 interface Product {
   id: string;
@@ -35,7 +35,7 @@ export const ProductCard = ({ product }: { product: Product }) => {
           />
           {product.model3d && (
             <div className="absolute top-2 right-2 bg-forever-navy text-white text-xs px-2 py-1 rounded-full flex items-center">
-              <Cube3d size={14} className="mr-1" />
+              <View size={14} className="mr-1" />
               3D View
             </div>
           )}

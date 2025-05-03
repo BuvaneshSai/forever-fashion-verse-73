@@ -95,7 +95,7 @@ export const uploadProductImage = async (file: File): Promise<string | null> => 
       console.error('Error details:', JSON.stringify(error));
       
       // Check if the error is due to missing bucket
-      if (error.message?.includes('bucket') || error.statusCode === 404) {
+      if (error.message?.includes('bucket') || (error as any).statusCode === 404) {
         toast({
           title: 'Storage Error',
           description: 'Products storage bucket not found. Please contact an administrator.',
