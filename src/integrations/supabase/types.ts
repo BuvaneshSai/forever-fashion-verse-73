@@ -109,6 +109,7 @@ export type Database = {
           discount_percentage: number | null
           id: string
           image: string
+          model3d: string | null
           name: string
           price: number
           rating: number | null
@@ -125,6 +126,7 @@ export type Database = {
           discount_percentage?: number | null
           id?: string
           image: string
+          model3d?: string | null
           name: string
           price: number
           rating?: number | null
@@ -141,6 +143,7 @@ export type Database = {
           discount_percentage?: number | null
           id?: string
           image?: string
+          model3d?: string | null
           name?: string
           price?: number
           rating?: number | null
