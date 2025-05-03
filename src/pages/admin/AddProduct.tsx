@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/layout/AdminLayout";
@@ -56,7 +57,7 @@ const AddProduct = () => {
     category: "",
     subcategory: "",
     price: "",
-    discount_percentage: "", // Changed from discountPercentage to discount_percentage
+    discount_percentage: "", // Make sure we're using discount_percentage everywhere
     sizes: [] as string[],
     imageFiles: [] as File[],
     imageURLs: [] as string[],
@@ -154,7 +155,18 @@ const AddProduct = () => {
           ...prev,
           model3DURL
         }));
+        toast({
+          title: "Success",
+          description: "3D model generated successfully!",
+        });
       }
+    } catch (error) {
+      console.error("Error generating 3D model:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate 3D model. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIs3DProcessing(false);
     }
@@ -226,9 +238,13 @@ const AddProduct = () => {
       
       // If a 3D model hasn't been generated yet, try to generate one
       let model3DURL = productData.model3DURL;
-      if (!model3DURL) {
+      if (!model3DURL && productData.imageURLs.length > 0) {
         try {
           setIs3DProcessing(true);
+          toast({
+            title: "Processing",
+            description: "Generating 3D model for your product...",
+          });
           model3DURL = await convertImageTo3D(imageUrl) || "";
         } catch (error) {
           console.error("Error generating 3D model:", error);
@@ -245,7 +261,7 @@ const AddProduct = () => {
         image: imageUrl,
         model3d: model3DURL || null,
         price: Number(productData.price),
-        discount_percentage: Number(productData.discount_percentage || 0), // Using the correct field name
+        discount_percentage: Number(productData.discount_percentage || 0),
         category: categories.find(c => c.value === productData.category)?.label || productData.category,
         subcategory: productData.subcategory,
         sizes: productData.sizes,

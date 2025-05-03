@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, View3d } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Product } from "@/data/products";
 
@@ -15,11 +15,22 @@ const ProductSection = ({ title, products, viewAllLink }: ProductSectionProps) =
   // Filter out inactive or deleted products
   const activeProducts = products.filter(product => product.status === "Active");
   
+  // Count products with 3D models
+  const productsWithModels = activeProducts.filter(p => p.model3d).length;
+  
   return (
     <section className="py-12">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold">{title}</h2>
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold">{title}</h2>
+            {productsWithModels > 0 && (
+              <p className="text-sm text-gray-600 mt-1">
+                <View3d className="inline-block mr-1" size={16} />
+                {productsWithModels} product{productsWithModels !== 1 ? 's' : ''} with 3D preview
+              </p>
+            )}
+          </div>
           <Link to={viewAllLink} className="flex items-center text-forever-navy hover:text-forever-orange">
             <span className="mr-2">View All</span>
             <ArrowRight size={16} />

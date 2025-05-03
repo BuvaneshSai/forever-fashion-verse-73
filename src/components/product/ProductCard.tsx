@@ -1,5 +1,6 @@
 
 import { Link } from "react-router-dom";
+import { Cube3d } from "lucide-react";
 
 interface Product {
   id: string;
@@ -10,6 +11,7 @@ interface Product {
   category: string;
   subcategory: string;
   status?: string;
+  model3d?: string | null;
 }
 
 export const ProductCard = ({ product }: { product: Product }) => {
@@ -25,12 +27,18 @@ export const ProductCard = ({ product }: { product: Product }) => {
   return (
     <Link to={`/product/${product.id}`} className="group">
       <div className="bg-gray-100 rounded-lg overflow-hidden">
-        <div className="h-64 overflow-hidden">
+        <div className="h-64 relative overflow-hidden">
           <img 
             src={product.image} 
             alt={product.name} 
             className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
           />
+          {product.model3d && (
+            <div className="absolute top-2 right-2 bg-forever-navy text-white text-xs px-2 py-1 rounded-full flex items-center">
+              <Cube3d size={14} className="mr-1" />
+              3D View
+            </div>
+          )}
         </div>
         <div className="p-4">
           <h3 className="font-medium text-gray-900 mb-1">{product.name}</h3>
